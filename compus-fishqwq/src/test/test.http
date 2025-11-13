@@ -1,0 +1,94 @@
+### ========================= 1. 用户 (User) 测试 =========================
+
+### 1.1 创建用户 A (卖家) - 预期 ID=1
+# 记录返回的 id，用于后续请求中的 user.id 字段
+POST http://localhost:8080/users
+Content-Type: application/json
+//Authorization: Basic dXNlcjoxMjM0NTY=
+
+{
+    "name": "Seller A",
+    "username": "seller_a",
+    "email": "selasdeler.a@test.com"
+}
+
+### 1.2 创建用户 B (买家) - 预期 ID=2
+# 记录返回的 id，用于后续请求中的 buyerId 参数
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+    "name": "Buyer B",
+    "username": "buyer B",
+    "email": "buyer.b@test.com"
+}
+
+### 1.3 查询所有用户 - 预期返回两条记录
+GET http://localhost:8080/users
+
+### 1.4 查询特定用户 (ID=1)
+GET http://localhost:8080/users/1
+
+
+### ========================= 2. 商品 (Product) 测试 =========================
+
+### 2.1 发布商品 1 (由 User 1 发布) - 预期 ID=1
+# 注意：JSON 格式中的 user 字段需要关联到前面创建的 User A (ID: 1)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+    "title": "Test Book",
+    "description": "Good technical book",
+    "price": 49.99,
+    "category": "Book",
+    "user": {
+        "id": 1
+    }
+}
+
+### 2.2 发布商品 2 (由 User 1 发布) - 预期 ID=2
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+    "title": "Test Phone",
+    "description": "Used smartphone, good condition",
+    "price": 899.00,
+    "category": "Electronics",
+    "user": {
+        "id": 1
+    }
+}
+
+### 2.3 按卖家查询商品 (查询 User 1 的所有商品) - 预期返回两条记录
+# 对应 ProductController.getProductsBySeller
+GET http://localhost:8080/products/seller/1
+
+### 2.4 按名称模糊搜索商品 (搜索包含 "Book" 的商品)
+# 对应 ProductController.searchProductsByTitle
+GET http://localhost:8080/products/search?title=Book
+
+
+### ========================= 3. 订单 (Order) 测试 =========================
+
+### 3.1 创建订单 (User 2 购买 Product 1) - 预期 ID=1
+# 对应 OrderController.createOrder
+POST http://localhost:8080/orders/create?buyerId=2&productId=1
+
+### 3.2 更新订单状态为 PAID
+# 对应 OrderController.updateOrderStatus
+PUT http://localhost:8080/orders/1/status?status=PAID
+
+### 3.3 查询买家订单 (查询 User 2 的所有订单)
+# 对应 OrderController.getOrdersByBuyer
+GET http://localhost:8080/orders/buyer/2
+
+### 3.4 计算用户总消费额 (查询 User 2 的总消费) - 预期返回 49.99
+# 对应 OrderController.getTotalSpentByUser
+GET http://localhost:8080/orders/buyer/2/total
+
+### ========================= 4. 异常测试 (404) =========================
+
+### 4.1 查询一个不存在的商品 (ID=999) - 预期 404 Not Found
+GET http://localhost:8080/products/999
