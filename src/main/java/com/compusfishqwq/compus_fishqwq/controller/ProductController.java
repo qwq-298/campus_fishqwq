@@ -4,10 +4,14 @@ import com.compusfishqwq.compus_fishqwq.entity.Product;
 import com.compusfishqwq.compus_fishqwq.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.compusfishqwq.compus_fishqwq.entity.User;
+import com.compusfishqwq.compus_fishqwq.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Map;
+import java.util.HashMap;
 /**
  * ProductController
  * -----------------
@@ -20,7 +24,8 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-
+    @Autowired
+    private UserRepository userRepository;
     /** 获取所有商品 */
     @GetMapping
     public List<Product> getAllProducts() {
@@ -64,6 +69,34 @@ public class ProductController {
             @RequestParam("min") Double minPrice,
             @RequestParam("max") Double maxPrice) {
         return productService.getProductsByPriceRange(minPrice, maxPrice);
+    }
+
+    @PostMapping("api/publish")
+    public Map<String,Object> publishProduct(
+        @RequestParam String title,
+        @RequestParam String description,
+        @RequestParam BigDecimal price,
+        @RequestParam String catagory,
+        @RequestParam String username
+    ){
+        Map<String,Object> result= new HashMap<>();
+        User user=userRepository.findByUsername(username).orElse(null);
+        if(user==null){
+           result.put("success",false);
+           result.put("msg","用户不存在");
+           return result;
+        }
+        Product product=new Product();
+        product.setTitle(title);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCategory(catagory);
+        product.setUser(user);
+        productService.saveProduct(product);
+        result.put("succcess",true);
+        result.put("msg","发布成功");
+        result.put("product",product);
+        return result;
     }
 }
 

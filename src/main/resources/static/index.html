@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>校园闲品 - 首页</title>
-    <!-- 返回按钮 -->
-    <div class="back-btn" onclick="goBackLogin()">← 返回登录</div>
-
-    <script>
-    function goBackLogin() {
-        window.location.href = "/login.html";  // 跳转回登录页
-    }
-
-    </script>
     <style>
         body { margin: 0; font-family: Arial; background: #f7f7f7; }
+
+        /* 返回按钮 */
+        .back-btn {
+            padding: 10px;
+            background: #f5f5f5;
+            cursor: pointer;
+        }
 
         /* 搜索框 */
         .search-bar {
@@ -41,14 +39,8 @@
             width: 100%;
             border-radius: 10px;
         }
-        .product-title {
-            font-size: 16px;
-            margin: 5px 0 3px;
-        }
-        .product-price {
-            color: #ff5722;
-            font-weight: bold;
-        }
+        .product-title { font-size: 16px; margin: 5px 0 3px; }
+        .product-price { color: #ff5722; font-weight: bold; }
 
         /* 底部导航栏 */
         .bottom-nav {
@@ -62,15 +54,13 @@
             justify-content: space-around;
             align-items: center;
         }
-        .nav-item {
-            text-align: center;
-            font-size: 14px;
-            color: #444;
-            text-decoration: none;
-        }
+        .nav-item { text-align: center; font-size: 14px; color: #444; text-decoration: none; }
     </style>
 </head>
 <body>
+
+<!-- 返回按钮 -->
+<div class="back-btn" onclick="goBackLogin()">← 返回登录</div>
 
 <!-- 搜索框 -->
 <div class="search-bar">
@@ -94,11 +84,17 @@
 
 <!-- 底部导航栏 -->
 <div class="bottom-nav">
-    <a class="nav-item" href="/">首页</a>
-    <a class="nav-item" href="/publish">发布</a>
-    <a class="nav-item" href="/messages">消息</a>
+    <a class="nav-item" href="/index.html">首页</a>
+    <a class="nav-item" href="/publish.html">发布</a>
+    <a class="nav-item" href="/messages.html">消息</a>
     <a class="nav-item" href="/mine.html">我的</a>
 </div>
+
+<script>
+function goBackLogin() {
+    window.location.href = "/login.html";  // 跳转回登录页
+}
+</script>
 
 </body>
 </html>
