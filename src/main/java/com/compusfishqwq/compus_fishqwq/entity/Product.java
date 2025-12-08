@@ -2,8 +2,11 @@ package com.compusfishqwq.compus_fishqwq.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "products")
@@ -36,15 +39,17 @@ public class Product {
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
-    private List<String> images;
+    private List<String> images=new ArrayList<>();
 
     // 多个商品属于一个用户
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     // 一个商品可以对应多个订单项
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Order> orders;
 
     // --- Getter & Setter ---

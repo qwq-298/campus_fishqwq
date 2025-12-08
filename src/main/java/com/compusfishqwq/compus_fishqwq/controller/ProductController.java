@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 /**
  * ProductController
@@ -76,8 +78,9 @@ public class ProductController {
         @RequestParam String title,
         @RequestParam String description,
         @RequestParam BigDecimal price,
-        @RequestParam String catagory,
-        @RequestParam String username
+        @RequestParam String category,
+        @RequestParam String username,
+         @RequestParam(required = false) String images 
     ){
         Map<String,Object> result= new HashMap<>();
         User user=userRepository.findByUsername(username).orElse(null);
@@ -86,14 +89,38 @@ public class ProductController {
            result.put("msg","用户不存在");
            return result;
         }
-        Product product=new Product();
+       /*  Product product=new Product();
         product.setTitle(title);
         product.setDescription(description);
         product.setPrice(price);
-        product.setCategory(catagory);
+        product.setCategory(category);
         product.setUser(user);
-        productService.saveProduct(product);
-        result.put("succcess",true);
+
+        if (images != null && !images.isEmpty()) {
+        List<String> imageList = List.of(images.split(",")); // 逗号分割
+        product.setImages(imageList);
+        }
+
+        productService.saveProduct(product);*/
+        Product product = new Product();
+        product.setTitle(title);
+        product.setDescription(description);
+        product.setPrice(price);
+        product.setCategory(category);
+        product.setUser(user);
+
+        // 先保存 product
+        productService.saveProduct(product);  // 先 flush，确保 product.id 已生成
+
+        if(images != null && !images.isEmpty()) {
+          //List<String> imageList = Arrays.asList(images.split(","));
+          //List<String> imageList = new ArrayList<>(images);
+          //product.setImages(imageList);
+          product.setImages(new ArrayList<>(Arrays.asList(images.split(","))));
+          productService.saveProduct(product); // 再保存 images
+        }
+
+        result.put("success",true);
         result.put("msg","发布成功");
         result.put("product",product);
         return result;

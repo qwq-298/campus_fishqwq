@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>发布商品</title>
-
     <style>
-        body { margin: 0; background: #f5f5f5; font-family: Arial; }
+        body { margin: 0; background: #f5f5f5; font-family: Arial; padding-bottom: 80px;}
 
         .header {
             padding: 20px;
@@ -15,9 +14,7 @@
             border-bottom: 1px solid #eee;
         }
 
-        .container {
-            padding: 15px;
-        }
+        .container { padding: 15px; }
 
         .input-group {
             background: white;
@@ -26,11 +23,7 @@
             margin-bottom: 15px;
         }
 
-        .input-group label {
-            font-size: 16px;
-            color: #444;
-        }
-
+        .input-group label { font-size: 16px; color: #444; }
         .input-group input,
         .input-group textarea,
         .input-group select {
@@ -43,10 +36,7 @@
             box-sizing: border-box;
         }
 
-        textarea {
-            resize: none;
-            height: 100px;
-        }
+        textarea { resize: none; height: 60px; }
 
         .image-upload-box {
             width: 100%;
@@ -62,9 +52,11 @@
             cursor: pointer;
         }
 
-        .image-upload-box img {
-            height: 80px;
-            opacity: 0.3;
+        .image-upload-box img { height: 80px; opacity: 0.3; }
+
+        #previewImages img {
+            width: 80px; height: 80px; object-fit: cover;
+            margin-right: 10px; margin-bottom: 10px; border-radius: 5px;
         }
 
         .publish-btn {
@@ -92,12 +84,7 @@
             align-items: center;
         }
 
-        .nav-item {
-            text-align: center;
-            font-size: 14px;
-            color: #444;
-            text-decoration: none;
-        }
+        .nav-item { text-align: center; font-size: 14px; color: #444; text-decoration: none; }
     </style>
 </head>
 
@@ -110,9 +97,12 @@
     <!-- 上传图片区域 -->
     <div class="image-upload-box" onclick="selectImage()">
         <img src="https://cdn-icons-png.flaticon.com/512/1829/1829586.png">
-        <p style="color:#888;">点击上传商品图片</p>
+        <p style="color:#888;">点击上传商品图片（可多张）</p>
     </div>
-    <input type="file" id="imageFile" accept="image/*" style="display:none">
+    <input type="file" id="imageFile" accept="image/*" style="display:none" multiple>
+
+    <!-- 预览图片 -->
+    <div id="previewImages" style="display:flex; flex-wrap:wrap; margin-bottom:15px;"></div>
 
     <!-- 商品标题 -->
     <div class="input-group">
@@ -158,10 +148,42 @@
 </div>
 
 <script>
+let imageUrls = [];
 
 function selectImage() {
     document.getElementById("imageFile").click();
 }
+
+document.getElementById("imageFile").addEventListener("change", function(event) {
+    const files = event.target.files;
+    const preview = document.getElementById("previewImages");
+    preview.innerHTML = "";
+    imageUrls = [];
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // 显示预览
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+
+        // 上传图片到服务器
+        const formData = new FormData();
+        formData.append("file", file);
+
+        fetch("/api/images/upload", { method: "POST", body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    imageUrls.push(data.url); // 收集 URL
+                } else {
+                    alert("上传图片失败：" + data.msg);
+                }
+            })
+            .catch(err => alert("上传出错：" + err));
+    }
+});
 
 function publishProduct() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -182,18 +204,23 @@ function publishProduct() {
         return;
     }
 
-    fetch("products/api/publish", {
+    if (imageUrls.length === 0) {
+        alert("请上传至少一张图片！");
+        return;
+    }
+
+    fetch("/products/api/publish", {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: `title=${title}&description=${description}&price=${price}&category=${category}&username=${user.username}`
+        body: `title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&price=${encodeURIComponent(price)}&category=${encodeURIComponent(category)}&username=${encodeURIComponent(user.username)}&images=${encodeURIComponent(imageUrls.join(","))}`
     })
-    .then(r => r.json())
-    .then(res => {
-        if (res.success) {
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
             alert("发布成功！");
             window.location.href = "/mine.html";
         } else {
-            alert("发布失败：" + res.msg);
+            alert("发布失败：" + data.msg);
         }
     });
 }
@@ -201,3 +228,5 @@ function publishProduct() {
 
 </body>
 </html>
+
+
