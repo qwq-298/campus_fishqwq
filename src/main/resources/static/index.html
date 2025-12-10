@@ -66,7 +66,9 @@
 
 <!-- 搜索框 -->
 <div class="search-bar">
-    <input class="search-input" placeholder="搜索商品、关键字">
+   <input id="search-input" class="search-input" 
+       placeholder="搜索商品、关键字" 
+       onkeydown="if(event.key==='Enter') searchProduct()">
 </div>
 
 <h2 style="padding:10px;">推荐商品</h2>
@@ -115,6 +117,31 @@ loadRandomProducts();
 <script>
 function goBackLogin() {
     window.location.href = "/login.html";  // 跳转回登录页
+}
+</script>
+
+<script>
+async function searchProduct() {
+    let keyword = document.getElementById("search-input").value.trim();
+    if (!keyword) return;
+
+    const res = await fetch(`/products/search?title=` + encodeURIComponent(keyword));
+    const list = await res.json();
+
+    if (list.length === 0) {
+        alert("未找到相关商品");
+        return;
+    }
+
+    // 只有一个商品 → 直接跳详情页
+    if (list.length === 1) {
+        window.location.href = "/product_detail.html?id=" + list[0].id;
+        return;
+    }
+
+    // 多个商品 → 跳到搜索结果页
+    localStorage.setItem("searchResults", JSON.stringify(list));
+    window.location.href = "/search_result.html";
 }
 </script>
 

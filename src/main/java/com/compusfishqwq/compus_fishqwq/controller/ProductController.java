@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.compusfishqwq.compus_fishqwq.entity.User;
 import com.compusfishqwq.compus_fishqwq.repository.UserRepository;
+import com.compusfishqwq.compus_fishqwq.entity.SellerInfoDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -39,6 +40,18 @@ public class ProductController {
     @GetMapping("/{id}")
     public Optional<Product> getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
+    }
+
+    @GetMapping("/{id}/seller")
+    public SellerInfoDTO getSeller(@PathVariable Long id) {
+       Product product = productService.getProductById(id).orElse(null); // 你已有的查询逻辑
+       User seller = product.getUser();
+       return new SellerInfoDTO(seller.getUsername(), seller.getEmail());
+    }
+    
+    @GetMapping("/show/{id}")
+    public List<Product> getProductWithSeller(@PathVariable Long id){
+        return productService.getProductsBySeller(id);
     }
 
     @GetMapping("/randomtwo")

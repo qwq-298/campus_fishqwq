@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品详情</title>
+<style>
+body { background:#f7f7f7;font-family:Arial;margin:0; }
+.container { padding:20px; }
+
+.product-img {
+    width: 90%;
+    max-width: 350px; 
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container" id="detail"></div>
+
+<script>
+async function loadProduct() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    const res = await fetch(`/products/${id}`);
+    const product = await res.json();
+
+    let imgSrc = (product.images && product.images.length > 0)
+                   ? product.images[0]
+                   : "/images/default.jpg";
+
+    document.getElementById("detail").innerHTML = `
+        <img src="${imgSrc}" class="product-img">
+        <h2>${product.title}</h2>
+        <p>价格: ￥${product.price}</p>
+        <p>${product.description}</p>
+
+        <h3>卖家信息</h3>
+        <p>用户名：<span id="sellerName">加载中...</span></p>
+        <p>邮箱：<span id="sellerEmail">加载中...</span></p>
+    `;
+
+    loadSeller(id);
+}
+
+async function loadSeller(id) {
+    const res = await fetch(`/products/${id}/seller`);
+    const seller = await res.json();
+
+    document.getElementById("sellerName").textContent = seller.username;
+    document.getElementById("sellerEmail").textContent = seller.email;
+}
+
+loadProduct();
+</script>
+
+</body>
+</html>

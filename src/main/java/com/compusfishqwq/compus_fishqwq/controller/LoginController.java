@@ -34,7 +34,8 @@ public class LoginController {
             result.put("user", Map.of(
             "username", username,
             "name", user.getName(),
-            "email", user.getEmail()
+            "email", user.getEmail(),
+            "id",user.getId()
             ));
         } else {
             result.put("success", false);

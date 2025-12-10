@@ -81,6 +81,9 @@ Content-Type: application/json
         "id": 1
     }
 }
+#####
+
+
 
 ### 2.3 按卖家查询商品 (查询 User 1 的所有商品) - 预期返回两条记录
 # 对应 ProductController.getProductsBySeller
@@ -90,7 +93,8 @@ GET http://localhost:8080/products/seller/1
 # 对应 ProductController.searchProductsByTitle
 GET http://localhost:8080/products/search?title=Book
 
-
+#####
+DELETE http://localhost:8080/products/10
 ### ========================= 3. 订单 (Order) 测试 =========================
 
 ### 3.1 创建订单 (User 2 购买 Product 1) - 预期 ID=1
