@@ -31,6 +31,6 @@ jobs:
       - name: Show Maven version
         run: mvn -version
 
-      # 4. 执行单元测试 + 集成测试
+      # 4. 执行集成测试
       - name: Run tests
-        run: mvn spring-boot:run
+        run: mvn test
