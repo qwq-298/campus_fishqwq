@@ -1,0 +1,15 @@
+{
+    "1": {
+        "name": "May expose internal representation by returning reference to mutable object",
+        "File": "order.java",
+        "Line": "43",
+        "At": "getBuyer() may expose internal representation by returning Order.buyer"
+    },
+    "2": {
+        "name": "May expose internal representation by incorporating reference to mutable object ",
+         "File": "UserController.java",
+        "Line": "23",
+        "At": "new UserController(UserService) may expose internal representation by storing an externally mutable object into UserController.userService"
+    }
+}
+    

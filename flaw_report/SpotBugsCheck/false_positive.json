@@ -1,0 +1,8 @@
+{
+    "1": {
+        "name": "Random object created and used only once",
+        "File": "ImageController.java",
+        "Line": "34",
+        "At": " String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();"
+    },
+}

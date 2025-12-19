@@ -1,0 +1,14 @@
+{
+    "1": {
+        "name": "Sections of code should not be commented out",
+        "File":"LoginController.java",
+        "Line": "48",
+        "At": "/*package com.compusfishqwq.compus_fishqwq.controller;"
+    },
+    "2": {
+        "name": "Jump statements should not be redundant",
+         "File": "ProductController.java",
+        "Line": "71",
+        "At": "continue;"
+    }
+}

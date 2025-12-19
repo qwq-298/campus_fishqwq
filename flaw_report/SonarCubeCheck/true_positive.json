@@ -1,0 +1,26 @@
+{
+    "1": {
+        "name": "html element should have a language attribute",
+        "File": "messages.html",
+        "Line": "22",
+        "At": "<html>"
+    },
+    "2": {
+        "name": "Font declarations should contain at least one generic font family ",
+         "File": "messages.html",
+        "Line": "7",
+        "At": "body { margin: 0; font-family: Arial; background: #f5f5f5; }"
+    },
+    "3": {
+        "name": "Null pointers should not be dereferenced",
+        "File": "productController.java",
+        "Line": "48",
+        "At": "User seller = product.getUser();"
+    },
+    "4": {
+        "name": "for of should be used with Iterables (javascript:S4138)",
+        "File": "publish.html",
+        "Line": "163",
+        "At": " for (let i = 0; i < files.length; i++) {"
+    }
+}

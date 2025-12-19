@@ -1,0 +1,19 @@
+{
+  "potentialFalsePositives": [
+    {
+      "file": "LoginController.java, RegisterController.java",
+      "defectType": "密码未加密存储和校验",
+      "originalAnalysis": "原分析指出，如果 Service 层没有对用户密码使用 BCrypt 等安全哈希算法进行加密存储和校验，将导致密码泄露风险。",
+      "reasonForPotentialFalsePositive": "密码的哈希处理（如：注册时加密存储，登录时比对校验）是 Service 层的核心职责。**如果您的 `LoginService` 和 `RegisterService` 内部已正确地使用了 `BCryptPasswordEncoder` 或其他安全哈希机制**，那么此缺陷报告将是误报。",
+      "riskLevelInCodeProvided": "SEVERE (如果 Service 层未处理)"
+    },
+    {
+      "file": "OrderController.java",
+      "defectType": "缺乏事务管理",
+      "originalAnalysis": "原分析指出，`OrderController.createOrder` 涉及创建订单、可能扣减库存等原子操作，需要事务保证数据一致性，但 Controller 层未见事务注解。",
+      "reasonForPotentialFalsePositive": "事务管理通常在 Service 层实现。**如果 `OrderService.createOrder` 方法被正确地标注了 `@org.springframework.transaction.annotation.Transactional` 注解**，那么此缺陷报告将是误报。",
+      "riskLevelInCodeProvided": "HIGH (如果 Service 层未处理)"
+    }
+  ],
+  "note": "除了上述两点（依赖 Service 层逻辑），原报告中的其他安全问题（如：XSS、身份伪造、文件上传风险、硬编码路径等）均是基于可见代码的确定性缺陷，不属于误报范畴。"
+}

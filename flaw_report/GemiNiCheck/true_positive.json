@@ -1,0 +1,97 @@
+{
+  "codeAnalysisReport": {
+    "riskLevels": {
+      "SEVERE": "严重 (可能导致数据泄露或系统被完全控制)",
+      "HIGH": "高 (可能导致业务流程中断或数据被恶意篡改)",
+      "MEDIUM": "中 (影响代码质量、健壮性或部署灵活性)"
+    },
+    "frontendDefects": [
+      {
+        "file": "index.html, product_detail.html, messages.html, mine.html",
+        "type": "跨站脚本攻击 (XSS) 漏洞",
+        "description": "从后端 API 获取的用户输入数据（如商品标题 p.title、描述 product.description）直接通过 `innerHTML` 或模板字符串插入到 DOM 中，未进行任何净化处理。",
+        "riskLevel": "SEVERE",
+        "recommendation": "对于任何用户提供或来自后端的数据，应优先使用 `textContent` 或 `innerText` 插入。如果必须使用 HTML，请集成 DOMPurify 等库进行内容净化。"
+      },
+      {
+        "file": "messages.html, mine.html, publish.html",
+        "type": "弱客户端权限校验",
+        "description": "页面访问权限仅依赖检查 `localStorage.getItem(\"user\")`。这只是一种前端用户体验，无法阻止恶意用户绕过前端逻辑或直接调用后端 API。",
+        "riskLevel": "HIGH",
+        "recommendation": "后端所有敏感 API 都必须进行严格的认证和授权校验（通过 JWT Token 或 Session）。"
+      },
+      {
+        "file": "publish.html",
+        "type": "图片上传异步处理逻辑缺陷",
+        "description": "`publishProduct()` 函数在调用 `/products/api/publish` 接口时，没有明确等待所有图片上传的 `fetch` 请求完成，可能导致 `imageUrls` 数组为空或不完整就提交发布，造成数据不一致。",
+        "riskLevel": "HIGH",
+        "recommendation": "在调用发布 API 之前，使用 `Promise.all()` 确保所有图片上传的异步操作都已成功完成并获取到 URL。"
+      },
+      {
+        "file": "register.js",
+        "type": "硬编码后端地址",
+        "description": "注册接口的 `fetch` URL 被硬编码为 `http://localhost:8080/register`。",
+        "riskLevel": "MEDIUM",
+        "recommendation": "应改为相对路径 `/register` 或使用配置文件/环境变量定义基础 URL，提高部署灵活性。"
+      }
+    ],
+    "backendDefects": [
+      {
+        "file": "LoginController.java",
+        "type": "缺乏服务器端会话管理",
+        "description": "登录成功后，服务器没有建立任何会话（如 HttpSession 或 JWT Token），而是将用户ID等信息直接返回给前端，完全依赖客户端存储用户身份。",
+        "riskLevel": "SEVERE",
+        "recommendation": "集成 Spring Security 或实现 JWT/Session 机制，登录成功后返回 Token，所有后续请求依赖此 Token 进行身份验证。"
+      },
+      {
+        "file": "ProductController.java (publish 接口)",
+        "type": "身份伪造/授权绕过 (Authorization Bypass)",
+        "description": "`publish` 接口通过 `@RequestParam String username` 确定发布者。攻击者可以轻易修改此参数，冒充任何用户发布商品。",
+        "riskLevel": "SEVERE",
+        "recommendation": "发布者的身份（User ID/Username）必须从服务器端认证后的上下文（Session/JWT Token）中获取，客户端参数不应作为身份凭证。"
+      },
+      {
+        "file": "RegisterController.java, LoginController.java (Service层依赖)",
+        "type": "密码未加密存储",
+        "description": "如果 Service 层未对用户密码使用 BCrypt 或其他安全哈希算法进行加密和校验，用户密码将以明文存储在数据库中。",
+        "riskLevel": "SEVERE",
+        "recommendation": "注册时，必须使用 `BCryptPasswordEncoder` 对密码进行单向哈希。登录时，也必须使用其进行安全比对。"
+      },
+      {
+        "file": "OrderController.java, UserController.java",
+        "type": "敏感操作缺乏权限控制 (IDOR)",
+        "description": "像 `OrderController` 的 `updateOrderStatus`、`deleteOrder` 和 `UserController` 的 `updateUser`、`deleteUser` 等接口，没有校验操作用户是否拥有相应权限（如：是否是订单买/卖家，是否是操作本人）。任何登录用户都可以操作其他用户的资源。",
+        "riskLevel": "HIGH",
+        "recommendation": "在所有涉及用户资源的修改和删除操作中，必须从认证信息中获取当前用户ID，并校验其与目标资源的关联关系。"
+      },
+      {
+        "file": "ImageController.java",
+        "type": "文件上传安全性不足",
+        "description": "缺少文件类型（MIME Type）和文件大小的校验。此外，使用 `UUID + \"_\" + file.getOriginalFilename()` 组合文件名，存在潜在的路径穿越 (Path Traversal) 风险。",
+        "riskLevel": "HIGH",
+        "recommendation": "添加 MIME Type 校验（仅允许图片类型）、文件大小限制。文件名应只使用 UUID，或对 `getOriginalFilename()` 进行严格的路径清理。"
+      },
+      {
+        "file": "OrderController.java (createOrder)",
+        "type": "缺乏事务管理",
+        "description": "`createOrder` 涉及多个数据库操作（创建订单、更新商品状态/库存等），如果 Service 层方法未标记 `@Transactional`，可能导致部分失败，造成数据不一致。",
+        "riskLevel": "MEDIUM",
+        "recommendation": "确保 `OrderService.createOrder` 方法使用 `@Transactional` 注解，保证操作的原子性。"
+      },
+      {
+        "file": "ProductController.java (publish 接口)",
+        "type": "冗余的数据库操作",
+        "description": "`publish` 逻辑中，先 `productService.saveProduct(product)` 一次，然后设置 `images` 列表，再调用 `productService.saveProduct(product)` 第二次，导致不必要的数据库 UPDATE 操作。",
+        "riskLevel": "MEDIUM",
+        "recommendation": "将设置 `images` 列表的操作移至第一次保存之前，减少一次数据库写入。"
+      },
+      {
+        "file": "RegisterController.java",
+        "type": "API 响应格式不一致",
+        "description": "注册失败返回纯文本字符串 (`ResponseEntity.badRequest().body(\"...\")`)，成功返回 JSON (User 对象)，使前端处理逻辑变得复杂且不健壮。",
+        "riskLevel": "MEDIUM",
+        "recommendation": "统一 API 响应格式，无论成功或失败，都返回一个标准 JSON 结构（例如包含 `success`, `code`, `msg` 字段）。"
+      }
+    ]
+  }
+}
